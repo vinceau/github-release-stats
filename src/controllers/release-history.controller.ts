@@ -19,7 +19,7 @@ export class ReleaseHistoryController {
     @param.path.string('repo') repo: string,
   ) {
 
-    const resp: any = await graphqlWithAuth(`
+    const resp = await graphqlWithAuth(`
     query ($owner: String!, $repo: String!) {
         repository(owner:$owner, name:$repo) {
           id
@@ -43,17 +43,16 @@ export class ReleaseHistoryController {
       owner,
       repo,
     });
+    if (!resp) {
+      throw new Error("Failed to fetch data from Github");
+    }
 
-    // const x = await octokit.repos.listReleases({
-    //   owner,
-    //   repo,
-    // });
     console.log(resp);
     return {
       hello: "world",
       owner,
       repo,
-      releases: resp.repository,
+      releases: resp,
     };
   }
 }
