@@ -2,7 +2,7 @@
 
 // import {inject} from '@loopback/context';
 
-import {get, param} from '@loopback/rest';
+import {param, post} from '@loopback/rest';
 import {Octokit} from "@octokit/rest";
 
 
@@ -10,7 +10,7 @@ const octokit = new Octokit();
 
 export class ReleaseHistoryController {
   constructor() {}
-  @get('/releases/{owner}/{repo}')
+  @post('/releases/{owner}/{repo}')
   async getReleases(
     @param.path.string('owner') owner: string,
     @param.path.string('repo') repo: string,
