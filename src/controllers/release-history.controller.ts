@@ -3,10 +3,13 @@
 // import {inject} from '@loopback/context';
 
 import {param, post} from '@loopback/rest';
-import {Octokit} from "@octokit/rest";
+import {graphql} from "@octokit/graphql";
 
-
-const octokit = new Octokit();
+const graphqlWithAuth = graphql.defaults({
+  headers: {
+    Authorization: `token ${process.env.GITHUB_TOKEN}`,
+  }
+});
 
 export class ReleaseHistoryController {
   constructor() {}
@@ -15,16 +18,42 @@ export class ReleaseHistoryController {
     @param.path.string('owner') owner: string,
     @param.path.string('repo') repo: string,
   ) {
-    const x = await octokit.repos.listReleases({
+
+    const resp: any = await graphqlWithAuth(`
+    query ($owner: String!, $repo: String!) {
+        repository(owner:$owner, name:$repo) {
+          id
+          releases(last: 10) {
+            nodes {
+              name
+              createdAt
+              url
+              releaseAssets(last: 100) {
+                nodes {
+                  id
+                  name
+                  downloadCount
+                }
+              }
+            }
+          }
+        }
+      }
+    `, {
       owner,
       repo,
     });
-    console.log(x);
+
+    // const x = await octokit.repos.listReleases({
+    //   owner,
+    //   repo,
+    // });
+    console.log(resp);
     return {
       hello: "world",
       owner,
       repo,
-      releases: x,
+      releases: resp.repository,
     };
   }
 }
