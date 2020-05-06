@@ -11,6 +11,7 @@ export interface AssetResponse {
     id: string;
     releases: {
       nodes: Array<{
+        id: string;
         name: string;
         createdAt: string;
         url: string;
@@ -33,6 +34,7 @@ export const fetchAssets = async (owner: string, repo: string): Promise<AssetRes
           id
           releases(last: 10) {
             nodes {
+              id
               name
               createdAt
               url
