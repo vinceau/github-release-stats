@@ -34,7 +34,7 @@ export const fetchReleases = async (owner: string, repo: string): Promise<Releas
     query ($owner: String!, $repo: String!) {
         repository(owner:$owner, name:$repo) {
           id
-          releases(last: 10) {
+          releases(first: 3, orderBy: {field: CREATED_AT, direction: DESC}) {
             nodes {
               id
               name
