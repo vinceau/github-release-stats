@@ -2,29 +2,23 @@
 
 // import {inject} from '@loopback/context';
 
-import {get, param} from '@loopback/rest';
-import {Octokit} from "@octokit/rest";
-
-
-const octokit = new Octokit();
+import {param, post} from '@loopback/rest';
+import {fetchAssets} from '../lib/github';
 
 export class ReleaseHistoryController {
   constructor() {}
-  @get('/releases/{owner}/{repo}')
+  @post('/releases/{owner}/{repo}')
   async getReleases(
     @param.path.string('owner') owner: string,
     @param.path.string('repo') repo: string,
   ) {
-    const x = await octokit.repos.listReleases({
-      owner,
-      repo,
-    });
-    console.log(x);
+    const resp = await fetchAssets(owner, repo);
+    console.log(resp);
     return {
       hello: "world",
       owner,
       repo,
-      releases: x,
+      releases: resp,
     };
   }
 }
