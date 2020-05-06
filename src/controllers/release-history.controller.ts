@@ -3,13 +3,7 @@
 // import {inject} from '@loopback/context';
 
 import {param, post} from '@loopback/rest';
-import {graphql} from "@octokit/graphql";
-
-const graphqlWithAuth = graphql.defaults({
-  headers: {
-    Authorization: `token ${process.env.GITHUB_TOKEN}`,
-  }
-});
+import {fetchAssets} from '../lib/github';
 
 export class ReleaseHistoryController {
   constructor() {}
@@ -18,35 +12,7 @@ export class ReleaseHistoryController {
     @param.path.string('owner') owner: string,
     @param.path.string('repo') repo: string,
   ) {
-
-    const resp = await graphqlWithAuth(`
-    query ($owner: String!, $repo: String!) {
-        repository(owner:$owner, name:$repo) {
-          id
-          releases(last: 10) {
-            nodes {
-              name
-              createdAt
-              url
-              releaseAssets(last: 100) {
-                nodes {
-                  id
-                  name
-                  downloadCount
-                }
-              }
-            }
-          }
-        }
-      }
-    `, {
-      owner,
-      repo,
-    });
-    if (!resp) {
-      throw new Error("Failed to fetch data from Github");
-    }
-
+    const resp = await fetchAssets(owner, repo);
     console.log(resp);
     return {
       hello: "world",
