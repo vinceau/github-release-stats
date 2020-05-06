@@ -6,33 +6,35 @@ const graphqlWithAuth = graphql.defaults({
   }
 });
 
+export interface Release {
+  id: string;
+  name: string;
+  createdAt: string;
+  url: string;
+  releaseAssets: {
+    nodes: Array<{
+      id: string;
+      name: string;
+      downloadCount: number;
+    }>;
+  }
+}
+
 export interface AssetResponse {
   repository: {
     id: string;
     releases: {
-      nodes: Array<{
-        id: string;
-        name: string;
-        createdAt: string;
-        url: string;
-        releaseAssets: {
-          nodes: Array<{
-            id: string;
-            name: string;
-            downloadCount: number;
-          }>;
-        }
-      }>;
+      nodes: Array<Release>;
     }
   }
 }
 
-export const fetchAssets = async (owner: string, repo: string): Promise<AssetResponse> => {
+export const fetchReleases = async (owner: string, repo: string): Promise<Release[]> => {
   const resp = await graphqlWithAuth(`
     query ($owner: String!, $repo: String!) {
         repository(owner:$owner, name:$repo) {
           id
-          releases(last: 10) {
+          releases(first: 3, orderBy: {field: CREATED_AT, direction: DESC}) {
             nodes {
               id
               name
@@ -56,5 +58,5 @@ export const fetchAssets = async (owner: string, repo: string): Promise<AssetRes
   if (!resp) {
     throw new Error("Failed to fetch data from Github");
   }
-  return resp as AssetResponse;
+  return (resp as AssetResponse).repository.releases.nodes;
 }
