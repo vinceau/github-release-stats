@@ -3,7 +3,7 @@
 // import {inject} from '@loopback/context';
 
 import {param, post} from '@loopback/rest';
-import {fetchAssets} from '../lib/github';
+import {fetchReleases} from '../lib/github';
 
 export class ReleaseHistoryController {
   constructor() {}
@@ -12,13 +12,13 @@ export class ReleaseHistoryController {
     @param.path.string('owner') owner: string,
     @param.path.string('repo') repo: string,
   ) {
-    const resp = await fetchAssets(owner, repo);
-    console.log(resp);
+    const releases = await fetchReleases(owner, repo);
+    console.log(releases);
     return {
       hello: "world",
       owner,
       repo,
-      releases: resp,
+      releases,
     };
   }
 }
