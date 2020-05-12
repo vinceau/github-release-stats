@@ -4,7 +4,7 @@
 
 import {repository} from '@loopback/repository';
 import {param, post} from '@loopback/rest';
-import {fetchReleases, Release} from '../lib/github';
+import {fetchReleases} from '../lib/github';
 import {DownloadCount} from '../models';
 import {DownloadCountRepository} from '../repositories';
 
@@ -24,15 +24,8 @@ export class ReleaseHistoryController {
     @param.path.string('owner') owner: string,
     @param.path.string('repo') repo: string,
   ) {
-    const newReleases: Release[] = [];
     const releases = await fetchReleases(owner, repo);
     for (const release of releases) {
-      const newAssets: Array<{
-        id: string;
-        name: string;
-        downloadCount: number;
-        downloadCounts: RawDownloadCount[];
-      }> = [];
       const releaseId = release.id;
       for (const asset of release.releaseAssets.nodes) {
         const downloadCounts = await this.fetchAndUpdateDownloadCounts(
@@ -40,18 +33,12 @@ export class ReleaseHistoryController {
           asset.id,
           asset.downloadCount,
         );
-        newAssets.push({
-          ...asset,
-          downloadCounts,
-        });
+        // Patch the asset object with the download counts
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (asset as any).downloadCountHistory = downloadCounts;
       }
-      const newRelease = {
-        ...release,
-      };
-      newRelease.releaseAssets.nodes = newAssets;
-      newReleases.push(newRelease);
     }
-    return newReleases;
+    return releases;
   }
 
   /**
