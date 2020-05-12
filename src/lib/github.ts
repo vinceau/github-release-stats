@@ -1,9 +1,9 @@
-import {graphql} from "@octokit/graphql";
+import {graphql} from '@octokit/graphql';
 
 const graphqlWithAuth = graphql.defaults({
   headers: {
     Authorization: `token ${process.env.GITHUB_TOKEN}`,
-  }
+  },
 });
 
 export interface Release {
@@ -17,7 +17,7 @@ export interface Release {
       name: string;
       downloadCount: number;
     }>;
-  }
+  };
 }
 
 export interface AssetResponse {
@@ -25,16 +25,21 @@ export interface AssetResponse {
     id: string;
     releases: {
       nodes: Array<Release>;
-    }
-  }
+    };
+  };
 }
 
-export const fetchReleases = async (owner: string, repo: string): Promise<Release[]> => {
-  const resp = await graphqlWithAuth(`
-    query ($owner: String!, $repo: String!) {
+export const fetchReleases = async (
+  owner: string,
+  repo: string,
+  limit = 3,
+): Promise<Release[]> => {
+  const resp = await graphqlWithAuth(
+    `
+    query ($owner: String!, $repo: String!, $limit: Int!) {
         repository(owner:$owner, name:$repo) {
           id
-          releases(first: 3, orderBy: {field: CREATED_AT, direction: DESC}) {
+          releases(first: $limit, orderBy: {field: CREATED_AT, direction: DESC}) {
             nodes {
               id
               name
@@ -51,12 +56,15 @@ export const fetchReleases = async (owner: string, repo: string): Promise<Releas
           }
         }
       }
-    `, {
-    owner,
-    repo,
-  });
+    `,
+    {
+      owner,
+      repo,
+      limit,
+    },
+  );
   if (!resp) {
-    throw new Error("Failed to fetch data from Github");
+    throw new Error('Failed to fetch data from Github');
   }
   return (resp as AssetResponse).repository.releases.nodes;
-}
+};
