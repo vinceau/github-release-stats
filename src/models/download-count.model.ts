@@ -1,6 +1,12 @@
 import {Entity, model, property} from '@loopback/repository';
 
-@model()
+@model({
+  settings: {
+    postgresql: {
+      table: 'download_count',
+    },
+  },
+})
 export class DownloadCount extends Entity {
   @property({
     type: 'number',
@@ -12,12 +18,18 @@ export class DownloadCount extends Entity {
   @property({
     type: 'string',
     required: true,
+    postgresql: {
+      columnName: 'release_id',
+    },
   })
   releaseId: string;
 
   @property({
     type: 'string',
     required: true,
+    postgresql: {
+      columnName: 'asset_id',
+    },
   })
   assetId: string;
 
@@ -26,14 +38,13 @@ export class DownloadCount extends Entity {
     required: true,
     default: 0,
   })
-  downloadCount: number;
+  downloads: number;
 
   @property({
     type: 'date',
     required: true,
   })
-  timestamp: string;
-
+  tstz: Date;
 
   constructor(data?: Partial<DownloadCount>) {
     super(data);
