@@ -8,11 +8,6 @@ import {fetchReleases} from '../lib/github';
 import {DownloadCount} from '../models';
 import {DownloadCountRepository} from '../repositories';
 
-interface RawDownloadCount {
-  downloads: number;
-  tstz: Date;
-}
-
 export class ReleaseHistoryController {
   constructor(
     @repository(DownloadCountRepository)
@@ -55,7 +50,7 @@ export class ReleaseHistoryController {
     releaseId: string,
     assetId: string,
     newDownloads: number,
-  ): Promise<RawDownloadCount[]> {
+  ): Promise<DownloadCount[]> {
     // New updated timestamp
     const tstz = new Date();
     // Fetch the download history of the asset
