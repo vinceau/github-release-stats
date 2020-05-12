@@ -1,14 +1,19 @@
-import {inject, lifeCycleObserver, LifeCycleObserver, ValueOrPromise} from '@loopback/core';
+import {
+  inject,
+  lifeCycleObserver,
+  LifeCycleObserver,
+  ValueOrPromise,
+} from '@loopback/core';
 import {juggler} from '@loopback/repository';
 import {config} from './psqldb.datasource.config';
 
 @lifeCycleObserver('datasource')
 export class PsqldbDataSource extends juggler.DataSource
   implements LifeCycleObserver {
-  static dataSourceName = 'psqldb';
+  static dataSourceName = 'download_count';
 
   constructor(
-    @inject('datasources.config.psqldb', {optional: true})
+    @inject('datasources.config.download_count', {optional: true})
     dsConfig: object = config,
   ) {
     super(dsConfig);

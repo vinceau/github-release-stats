@@ -1,7 +1,7 @@
-import {DefaultCrudRepository} from '@loopback/repository';
-import {DownloadCount, DownloadCountRelations} from '../models';
-import {DbDataSource} from '../datasources';
 import {inject} from '@loopback/core';
+import {DefaultCrudRepository} from '@loopback/repository';
+import {PsqldbDataSource} from '../datasources';
+import {DownloadCount, DownloadCountRelations} from '../models';
 
 export class DownloadCountRepository extends DefaultCrudRepository<
   DownloadCount,
@@ -9,7 +9,7 @@ export class DownloadCountRepository extends DefaultCrudRepository<
   DownloadCountRelations
 > {
   constructor(
-    @inject('datasources.db') dataSource: DbDataSource,
+    @inject('datasources.download_count') dataSource: PsqldbDataSource,
   ) {
     super(DownloadCount, dataSource);
   }

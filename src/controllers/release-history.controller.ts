@@ -11,8 +11,25 @@ import {DownloadCountRepository} from '../repositories';
 export class ReleaseHistoryController {
   constructor(
     @repository(DownloadCountRepository)
-    public downloadCountRepository : DownloadCountRepository,
+    public downloadCountRepository: DownloadCountRepository,
   ) {}
+
+  @get('/asset/{releaseId}/{assetId}')
+  async getAssetDownloadCounts(
+    @param.path.string('releaseId') releaseId: string,
+    @param.path.string('assetId') assetId: string,
+  ) {
+    // Fetch the download history of the asset
+    const downloadCounts = await this.downloadCountRepository.find({
+      where: {
+        and: [{releaseId}, {assetId}],
+      },
+      order: ['tstz ASC'],
+      fields: {downloads: true, tstz: true},
+    });
+    console.log(downloadCounts);
+    return downloadCounts;
+  }
 
   @get('/downloads/{owner}/{repo}')
   async getDownloadCounts(
@@ -29,22 +46,19 @@ export class ReleaseHistoryController {
         downloadCounts: Array<DownloadCount>;
       }> = [];
       for (const asset of release.releaseAssets.nodes) {
-
         // Fetch the download history of the asset
         const downloadCounts = await this.downloadCountRepository.find({
           where: {
             and: [{releaseId: release.id}, {assetId: asset.id}],
           },
-          order: [
-            "timestamp ASC",
-          ],
-          fields: {downloadCount: true, timestamp: true}
+          order: ['tstz ASC'],
+          fields: {downloads: true, tstz: true},
         });
 
-        newAssets.push(({
+        newAssets.push({
           ...asset,
           downloadCounts,
-        }));
+        });
       }
       const newRelease = {
         ...release,
@@ -62,7 +76,7 @@ export class ReleaseHistoryController {
   ) {
     const allDownloads: DownloadCount[] = [];
 
-    const timestamp = (new Date()).toISOString();
+    const tstz = new Date(); //.toISOString();
     const releases = await fetchReleases(owner, repo);
     releases.forEach(release => {
       const releaseId = release.id;
@@ -70,8 +84,8 @@ export class ReleaseHistoryController {
         return new DownloadCount({
           assetId: asset.id,
           releaseId,
-          downloadCount: asset.downloadCount,
-          timestamp,
+          downloads: asset.downloadCount,
+          tstz: tstz,
         });
       });
       // Add them to the list
@@ -81,7 +95,7 @@ export class ReleaseHistoryController {
     await this.downloadCountRepository.createAll(allDownloads);
 
     return {
-      hello: "world",
+      hello: 'world',
       owner,
       repo,
       releases,
