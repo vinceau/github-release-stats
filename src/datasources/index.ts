@@ -1,2 +1,1 @@
-// export * from './db.datasource';
-export * from './psqldb.datasource';
+export * from './db.datasource';
