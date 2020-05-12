@@ -24,9 +24,21 @@ export class ReleaseHistoryController {
       where: {
         and: [{releaseId}, {assetId}],
       },
-      order: ['tstz ASC'],
-      fields: {downloads: true, tstz: true},
+      order: ['tstz DESC'],
+      limit: 2,
     });
+    if (downloadCounts.length === 2) {
+      // we have at least download records
+      const latestDownload = downloadCounts[0];
+      const secondLatestDownload = downloadCounts[1];
+      if (latestDownload.downloads === secondLatestDownload.downloads) {
+        // We want to patch the latest download count to simply be the latest date
+        await this.downloadCountRepository.updateById(latestDownload.id, {
+          ...latestDownload,
+          tstz: new Date(),
+        });
+      }
+    }
     console.log(downloadCounts);
     return downloadCounts;
   }
