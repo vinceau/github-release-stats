@@ -9,6 +9,10 @@ const graphqlWithAuth = graphql.defaults({
 export interface Release {
   id: string;
   name: string;
+  tag: {
+    id: string;
+    name: string;
+  };
   createdAt: string;
   url: string;
   releaseAssets: {
@@ -43,6 +47,10 @@ export const fetchReleases = async (
             nodes {
               id
               name
+              tag {
+                id
+                name
+              }
               createdAt
               url
               releaseAssets(last: 100) {
