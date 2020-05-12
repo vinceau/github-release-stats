@@ -14,35 +14,6 @@ export class ReleaseHistoryController {
     public downloadCountRepository: DownloadCountRepository,
   ) {}
 
-  @get('/asset/{releaseId}/{assetId}')
-  async getAssetDownloadCounts(
-    @param.path.string('releaseId') releaseId: string,
-    @param.path.string('assetId') assetId: string,
-  ) {
-    // Fetch the download history of the asset
-    const downloadCounts = await this.downloadCountRepository.find({
-      where: {
-        and: [{releaseId}, {assetId}],
-      },
-      order: ['tstz DESC'],
-      limit: 2,
-    });
-    if (downloadCounts.length === 2) {
-      // we have at least download records
-      const latestDownload = downloadCounts[0];
-      const secondLatestDownload = downloadCounts[1];
-      if (latestDownload.downloads === secondLatestDownload.downloads) {
-        // We want to patch the latest download count to simply be the latest date
-        await this.downloadCountRepository.updateById(latestDownload.id, {
-          ...latestDownload,
-          tstz: new Date(),
-        });
-      }
-    }
-    console.log(downloadCounts);
-    return downloadCounts;
-  }
-
   @get('/downloads/{owner}/{repo}')
   async getDownloadCounts(
     @param.path.string('owner') owner: string,
@@ -86,31 +57,72 @@ export class ReleaseHistoryController {
     @param.path.string('owner') owner: string,
     @param.path.string('repo') repo: string,
   ) {
-    const allDownloads: DownloadCount[] = [];
-
-    const tstz = new Date(); //.toISOString();
     const releases = await fetchReleases(owner, repo);
-    releases.forEach(release => {
+    for (const release of releases) {
       const releaseId = release.id;
-      const downloads = release.releaseAssets.nodes.map(asset => {
-        return new DownloadCount({
-          assetId: asset.id,
+      for (const asset of release.releaseAssets.nodes) {
+        await this.updateDownloadCount(
           releaseId,
-          downloads: asset.downloadCount,
-          tstz: tstz,
-        });
-      });
-      // Add them to the list
-      allDownloads.push(...downloads);
-    });
-    // this.downloadCountRepository.findAll();
-    await this.downloadCountRepository.createAll(allDownloads);
-
+          asset.id,
+          asset.downloadCount,
+        );
+      }
+    }
     return {
       hello: 'world',
       owner,
       repo,
       releases,
     };
+  }
+
+  /**
+   * Updates the database with the new download count, or patches the most
+   * latest download count with the latest timestamp if unchanged.
+   *
+   * @private
+   * @param {string} releaseId
+   * @param {string} assetId
+   * @param {number} newDownloads
+   * @memberof ReleaseHistoryController
+   */
+  private async updateDownloadCount(
+    releaseId: string,
+    assetId: string,
+    newDownloads: number,
+  ) {
+    // New updated timestamp
+    const tstz = new Date();
+    // Fetch the download history of the asset
+    const downloadCounts = await this.downloadCountRepository.find({
+      where: {
+        and: [{releaseId}, {assetId}],
+      },
+      order: ['tstz DESC'],
+      limit: 2,
+    });
+    if (downloadCounts.length === 2) {
+      // we have at least download records
+      const latestDownload = downloadCounts[0];
+      const secondLatestDownload = downloadCounts[1];
+      if (
+        newDownloads === latestDownload.downloads &&
+        latestDownload.downloads === secondLatestDownload.downloads
+      ) {
+        // We want to patch the latest download count to simply be the latest date
+        return this.downloadCountRepository.updateById(latestDownload.id, {
+          ...latestDownload,
+          tstz,
+        });
+      }
+    }
+
+    const count = new DownloadCount({
+      assetId,
+      releaseId,
+      downloads: newDownloads,
+      tstz,
+    });
+    return this.downloadCountRepository.create(count);
   }
 }
