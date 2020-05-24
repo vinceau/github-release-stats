@@ -1,10 +1,10 @@
 export const config = {
   name: 'db',
   connector: 'postgresql',
-  host: 'localhost',
-  port: 5432,
+  host: process.env.AWS_HOST,
+  port: process.env.AWS_PORT,
   user: process.env.PSQL_USER,
   password: process.env.PSQL_PASSWORD,
-  database: 'postgres',
+  database: process.env.AWS_DATABASE,
   ssl: false,
 };
