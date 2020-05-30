@@ -4,7 +4,8 @@
 
 import {repository} from '@loopback/repository';
 import {param, post} from '@loopback/rest';
-import {fetchReleases} from '../lib/github';
+import {fetchReleases, Release} from '../lib/github';
+import {secondsElapsed} from '../lib/utils';
 import {DownloadCount} from '../models';
 import {DownloadCountRepository} from '../repositories';
 
@@ -19,21 +20,23 @@ export class ReleaseHistoryController {
     @param.path.string('owner') owner: string,
     @param.path.string('repo') repo: string,
   ) {
+    const before = new Date();
     const releases = await fetchReleases(owner, repo);
-    for (const release of releases) {
-      const releaseId = release.id;
-      for (const asset of release.releaseAssets.nodes) {
-        const downloadCounts = await this.fetchAndUpdateDownloadCounts(
-          releaseId,
-          asset.id,
-          asset.downloadCount,
-        );
-        // Patch the asset object with the download counts
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (asset as any).downloadCountHistory = downloadCounts;
-      }
-    }
-    return releases;
+    console.log(
+      `[${owner}/${repo}]: fetched Github releases in ${secondsElapsed(
+        before,
+      )} seconds`,
+    );
+    const after = new Date();
+    const newReleases = await Promise.all(
+      releases.map(async release => this.withDownloadCounts(release)),
+    );
+    console.log(
+      `[${owner}/${repo}]: updated download counts in ${secondsElapsed(
+        after,
+      )} seconds`,
+    );
+    return newReleases;
   }
 
   /**
@@ -90,5 +93,38 @@ export class ReleaseHistoryController {
     await this.downloadCountRepository.create(count);
     allDownloadCounts.push(count);
     return allDownloadCounts;
+  }
+
+  /**
+   * Updates a release's assets with the download history.
+   *
+   * @private
+   * @param {Release} release The Github release object
+   * @returns {Promise<Release>}
+   * @memberof ReleaseHistoryController
+   */
+  private async withDownloadCounts(release: Release): Promise<Release> {
+    // Generate the promises that will resolve to the new nodes
+    const newNodes = release.releaseAssets.nodes.map(async asset => {
+      const downloadCountHistory = await this.fetchAndUpdateDownloadCounts(
+        release.id,
+        asset.id,
+        asset.downloadCount,
+      );
+      // Patch the asset object with the download counts
+      return {
+        ...asset,
+        downloadCountHistory,
+      };
+    });
+    // Actually wait for the promises to resolve
+    const nodes = await Promise.all(newNodes);
+    return {
+      ...release,
+      releaseAssets: {
+        ...release.releaseAssets,
+        nodes,
+      },
+    };
   }
 }
