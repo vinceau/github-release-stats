@@ -22,12 +22,20 @@ export class ReleaseHistoryController {
   ) {
     const before = new Date();
     const releases = await fetchReleases(owner, repo);
-    console.log(`Fetched Github releases in ${secondsElapsed(before)} seconds`);
+    console.log(
+      `[${owner}/${repo}]: fetched Github releases in ${secondsElapsed(
+        before,
+      )} seconds`,
+    );
     const after = new Date();
     const newReleases = await Promise.all(
       releases.map(async release => this.withDownloadCounts(release)),
     );
-    console.log(`Updated download counts in ${secondsElapsed(after)} seconds`);
+    console.log(
+      `[${owner}/${repo}]: updated download counts in ${secondsElapsed(
+        after,
+      )} seconds`,
+    );
     return newReleases;
   }
 
