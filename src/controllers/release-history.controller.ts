@@ -19,20 +19,46 @@ export class ReleaseHistoryController {
     @param.path.string('owner') owner: string,
     @param.path.string('repo') repo: string,
   ) {
+    const before = new Date();
+    console.log(before.toISOString());
     const releases = await fetchReleases(owner, repo);
-    for (const release of releases) {
-      const releaseId = release.id;
-      for (const asset of release.releaseAssets.nodes) {
+    const after = new Date();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    console.log(((after as any) - (before as any)) / 1000);
+    console.log('seconds elapsed');
+    /*
+    releases.forEach((release) => {
+      const x = release.releaseAssets.nodes.map(async (asset) => {
         const downloadCounts = await this.fetchAndUpdateDownloadCounts(
-          releaseId,
+          release.id,
           asset.id,
           asset.downloadCount,
         );
         // Patch the asset object with the download counts
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (asset as any).downloadCountHistory = downloadCounts;
-      }
+      })
+    })
+    */
+    for (const release of releases) {
+      const releaseId = release.id;
+      const nodesPromise = release.releaseAssets.nodes.map(async asset => {
+        const downloadCounts = await this.fetchAndUpdateDownloadCounts(
+          releaseId,
+          asset.id,
+          asset.downloadCount,
+        );
+        // Patch the asset object with the download counts
+        return {
+          ...asset,
+          downloadCountHistory: downloadCounts,
+        };
+      });
+      release.releaseAssets.nodes = await Promise.all(nodesPromise);
     }
+    const final = new Date();
+    console.log(((final as any) - (after as any)) / 1000);
+    console.log('seconds elapsed from amazon DB');
     return releases;
   }
 
