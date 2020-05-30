@@ -11,9 +11,9 @@ Declare the following environmental variable.
 | `GITHUB_TOKEN`  | For connecting to Github's GraphQL API       |
 | `PSQL_USER`     | Username for connecting to the PSQL database |
 | `PSQL_PASSWORD` | Password for connecting to the PSQL database |
-| `AWS_HOST`      | The host URL on AWS                          |
-| `AWS_PORT`      | The port of the postgres server on AWS       |
-| `AWS_DATABASE`  | The name of the database on AWS              |
+| `PSQL_HOST`      | The host URL on AWS                          |
+| `PSQL_PORT`      | The port of the postgres server on AWS       |
+| `PSQL_DATABASE`  | The name of the database on AWS              |
 
 ```sh
 npm install     # install dependencies
