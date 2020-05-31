@@ -16,8 +16,8 @@ Declare the following environmental variable.
 | `PSQL_DATABASE` | The name of the database                     |
 
 ```sh
-npm install     # install dependencies
-npm run start   # start the server
+yarn install     # install dependencies
+yarn run start   # start the server
 ```
 
-You should also run `npm run clean` when major changes are made.
+You should also run `yarn run clean` when major changes are made.
