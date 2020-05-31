@@ -2,6 +2,12 @@
   "name": "gh-release-stats",
   "version": "1.0.0",
   "description": "Track Github release download statistics over time",
+  "license": "MIT",
+  "author": {
+    "name": "Vince Au",
+    "email": "vinceau09@gmail.com",
+    "url": "https://github.com/vinceau"
+  },
   "keywords": [
     "loopback-application",
     "loopback"
@@ -13,29 +19,27 @@
   "scripts": {
     "build": "lb-tsc",
     "build:watch": "lb-tsc --watch",
-    "lint": "npm run prettier:check && npm run eslint",
-    "lint:fix": "npm run eslint:fix && npm run prettier:fix",
+    "lint": "yarn run prettier:check && yarn run eslint",
+    "lint:fix": "yarn run eslint:fix && yarn run prettier:fix",
     "prettier:cli": "lb-prettier \"**/*.ts\" \"**/*.js\"",
-    "prettier:check": "npm run prettier:cli -- -l",
-    "prettier:fix": "npm run prettier:cli -- --write",
+    "prettier:check": "yarn run prettier:cli -- -l",
+    "prettier:fix": "yarn run prettier:cli -- --write",
     "eslint": "lb-eslint --report-unused-disable-directives .",
-    "eslint:fix": "npm run eslint -- --fix",
-    "pretest": "npm run clean && npm run build",
+    "eslint:fix": "yarn run eslint -- --fix",
+    "pretest": "yarn run clean && yarn run build",
     "test": "lb-mocha --allow-console-logs \"dist/__tests__\"",
-    "posttest": "npm run lint",
-    "test:dev": "lb-mocha --allow-console-logs dist/__tests__/**/*.js && npm run posttest",
+    "posttest": "yarn run lint",
+    "test:dev": "lb-mocha --allow-console-logs dist/__tests__/**/*.js && yarn run posttest",
     "docker:build": "docker build -t gh-release-stats .",
     "docker:run": "docker run -p 3000:3000 -d gh-release-stats",
     "migrate": "node ./dist/migrate",
-    "prestart": "npm run build",
+    "prestart": "yarn run build",
     "start": "node -r source-map-support/register .",
     "clean": "lb-clean dist *.tsbuildinfo .eslintcache"
   },
   "repository": {
     "type": "git"
   },
-  "author": "",
-  "license": "",
   "files": [
     "README.md",
     "index.js",
