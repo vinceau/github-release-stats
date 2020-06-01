@@ -34,7 +34,8 @@
     "docker:run": "docker run -p 3000:3000 -d gh-release-stats",
     "migrate": "node ./dist/migrate",
     "prestart": "yarn run build",
-    "start": "node -r source-map-support/register .",
+    "start": "pm2 start ecosystem.config.js --env production",
+    "stop": "pm2 stop ecosystem.config.js --env production",
     "clean": "lb-clean dist *.tsbuildinfo .eslintcache"
   },
   "repository": {
@@ -73,6 +74,7 @@
     "eslint-plugin-eslint-plugin": "^2.2.1",
     "eslint-plugin-mocha": "^6.3.0",
     "husky": "^4.2.5",
+    "pm2": "^4.4.0",
     "pretty-quick": "^2.0.1",
     "source-map-support": "^0.5.16",
     "typescript": "~3.8.3"
