@@ -3,7 +3,7 @@ module.exports = {
   apps: [
     {
       name: "gh-release-stats",
-      script: "dist/index.js",
+      script: "index.js",
       instances: 1,
       autorestart: true,
       watch: false,
