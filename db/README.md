@@ -37,3 +37,9 @@ This will replace (I think) the existing table.
 ```
 \copy download_count from './db/dump/download_count';
 ```
+
+Copy only specific values, auto generating the serial id:
+
+```
+\copy download_count(release_id, asset_id, downloads, tstz) from '/absolute/path/to/dump/file';
+```
