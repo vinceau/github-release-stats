@@ -98,7 +98,19 @@ export class ReleaseHistoryController {
   private async withDownloadCounts(release: Release): Promise<Release> {
     // Generate the promises that will resolve to the new nodes
     const newNodes = release.releaseAssets.nodes.map(async (asset) => {
+      // Fetch the existing download counts
       const downloadCountHistory = await this.fetchAndUpdateDownloadCounts(release.id, asset.id, asset.downloadCount);
+
+      // Prepend the initial creation date with zero download count
+      downloadCountHistory.unshift(
+        new DownloadCount({
+          assetId: asset.id,
+          releaseId: release.id,
+          downloads: 0,
+          tstz: new Date(release.createdAt),
+        })
+      );
+
       // Patch the asset object with the download counts
       return {
         ...asset,
