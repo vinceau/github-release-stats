@@ -1,6 +1,6 @@
-# gh-release-stats
+# Github Releases Download Count Server
 
-[![LoopBack](<https://github.com/strongloop/loopback-next/raw/master/docs/site/imgs/branding/Powered-by-LoopBack-Badge-(blue)-@2x.png>)](http://loopback.io/)
+Github provides a nice API for fetching the total release download counts but it does not provide historical download counts over time. This project contains the server which stores download counts at a given point in time. The frontend which visualises these download counts in a pretty graph can be found at [this repo](https://github.com/vinceau/github-stats).
 
 ## Usage
 
@@ -20,4 +20,7 @@ yarn install     # install dependencies
 yarn run start   # start the server
 ```
 
-You should also run `yarn run clean` when major changes are made.
+You may also need to run `yarn run clean` when major changes are made.
+
+
+[![LoopBack](<https://github.com/strongloop/loopback-next/raw/master/docs/site/imgs/branding/Powered-by-LoopBack-Badge-(blue)-@2x.png>)](http://loopback.io/)
