@@ -43,3 +43,11 @@ Copy only specific values, auto generating the serial id:
 ```
 \copy download_count(release_id, asset_id, downloads, tstz) from '/absolute/path/to/dump/file';
 ```
+
+## Inserting only specific values
+
+Sometimes you only want to insert values which aren't generated (e.g. skip inserting values UUIDs, `created_at` timestamps etc).
+
+```sql
+insert into tournaments (name, user_id, start_at, end_at) values ('test tournament', 'test-user-id', NOW(), NOW());
+```
